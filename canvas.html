@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+    #canvas {
+      display: block;
+      background: #f5f5dc;
+    }
+    .tool-box {
+      position: fixed;
+      left: calc(50% - 50px);
+      top: 0;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 0 0 10px 10px;
+    }
+    .button {
+      padding: 10px 15px;
+      border: 1px solid #DCDFE6;
+      border-radius: 10px;
+      background: #fff;
+      color: #303133;
+      outline: none;
+    }
+
+    #eraser:hover {
+      color: #409EFF;
+      border-color: #b3d8ff;
+    }
+
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="300" height="300"></canvas>
+  <div class="tool-box">
+    <button id="eraser" class="button">橡皮擦</button>
+    <button id="eraser" class="button">画笔</button>
+  </div>
+  <script>
+    var PAINTING_COlOR = 'black'
+    var PAINTING_WIDTH = 5
+
+    var canvas = document.querySelector("#canvas")
+    function resizeCanvas(canvas) {
+      var pageWidth = document.documentElement.clientWidth;
+      var pageHeight = document.documentElement.clientHeight;
+      canvas.width = pageWidth
+      canvas.height = pageHeight
+    }
+    resizeCanvas(canvas)
+    window.onresize = resizeCanvas(canvas)
+
+    var context = canvas.getContext('2d')
+
+    function drawCircle(x, y, radius) {
+      context.beginPath()
+      context.fillStyle = PAINTING_COlOR
+      context.arc(x, y, radius, 0, Math.PI * 2, true)
+      context.fill()
+    }
+
+    function drawLine(x1, y1, x2, y2) {
+      context.beginPath()
+      context.strokeStyle = PAINTING_COlOR
+      context.lineWidth = PAINTING_WIDTH
+      context.moveTo(x1, y1)
+      context.lineTo(x2, y2)
+      context.stroke()
+      context.closePath()
+    }
+
+    var painting = false
+    var lastPoint = {
+      x: undefined,
+      y: undefined
+    }
+
+    canvas.onmousedown = function(e) {
+      painting = true
+      var x = e.clientX
+      var y = e.clientY
+      drawCircle(x,y,PAINTING_WIDTH / 2)
+      lastPoint.x = x
+      lastPoint.y = y
+    }
+
+    canvas.onmousemove = function(e) {
+      if(painting) {
+        // 正在画状态下
+        var x = e.clientX
+        var y = e.clientY
+        drawCircle(x, y, PAINTING_WIDTH / 2)
+        drawLine(lastPoint.x, lastPoint.y, x, y)
+        lastPoint.x = x
+        lastPoint.y = y
+      }
+    }
+
+    canvas.onmouseup = function(e) {
+      painting = false
+    }
+
+  </script>
+</body>
+</html>

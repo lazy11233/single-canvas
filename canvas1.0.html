@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>自制画布</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+    #canvas {
+      display: block;
+      background: #f5f5dc;
+    }
+    .tool-box {
+      display: flex;
+      position: fixed;
+      left: calc(50% - 50px);
+      top: 0;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 0 0 10px 10px;
+    }
+    .button {
+      padding: 10px 15px;
+      border: 1px solid #DCDFE6;
+      border-radius: 10px;
+      background: #fff;
+      color: #303133;
+      outline: none;
+    }
+    #eraser:hover {
+      color: #409EFF;
+      border-color: #b3d8ff;
+    }
+    .button.active {
+      background-color: #409EFF;
+      color: #fff;
+    }
+    #eraser.button.active:hover {
+      color: #fff;
+      background:#b3d8ff;
+    }
+    .color-box {
+      display: inline-block;
+      width: 39px;
+      height: 39px;
+      border: 1px solid 	#c0c0c0;
+      border-radius: 4px;
+      margin: 0 10px 0;
+    }
+    .green {
+      background-color: green;
+    }
+    .red {
+      background-color: red;
+    }
+    .blue {
+      background-color: blue;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="300" height="300"></canvas>
+  <div class="tool-box">
+    <button id="eraser" class="button">橡皮擦</button>
+    <span class="color-box green"></span>
+    <span class="color-box red"></span>
+    <span class="color-box blue"></span>
+  </div>
+
+  <script>
+    var Canvas = {
+      init: function(){
+        this.PAINTING_COLOR = 'black'
+        this.PAINTING_WIDTH =  10
+        this.$canvas = undefined
+        this.context = ''
+        this.point = {
+          x: '',
+          y: ''
+        }
+        this.$eraser = ''
+        this.erasable = false
+        this.using = false
+        this.toolBox = ''
+        this.bind()
+        this.resizeCanvas()
+        this.userEraser = false
+      },
+      bind: function() {
+        var _this = this
+        _this.$canvas = document.querySelector('#canvas')
+        _this.$eraser = document.querySelector('#eraser')
+        _this.context = _this.$canvas.getContext('2d')
+        _this.toolBox = document.querySelector('.tool-box')
+        _this.toolBox.addEventListener('click', _this.changeColor)
+        _this.$canvas.addEventListener('mousedown', this.mouseDown)
+        _this.$canvas.addEventListener('mousemove', this.mouseMove)
+        _this.$canvas.addEventListener('mouseup', this.mouseUp)
+        window.addEventListener('resize',_this.resizeCanvas)
+        _this.$eraser.addEventListener('click', this.toggleStatus)
+      },
+      drawCircle(x, y) {
+        this.context.beginPath()
+        this.context.fillStyle = Canvas.PAINTING_COLOR
+        this.context.arc(x, y, Canvas.PAINTING_WIDTH / 2, 0, Math.PI * 2, true)
+        this.context.fill()
+      },
+      drawLine(x1, y1, x2, y2) {
+        var _this = Canvas
+        Canvas.context.beginPath()
+        Canvas.strokeStyle = Canvas.PAINTING_COLOR
+        Canvas.context.lineWidth = Canvas.PAINTING_WIDTH
+        Canvas.context.moveTo(x1, y1)
+        Canvas.context.lineTo(x2, y2)
+        Canvas.context.stroke()
+        Canvas.context.closePath()
+      },
+      mouseDown: function(e) {
+        Canvas.using = true
+        var x = e.clientX
+        var y = e.clientY
+
+        if(Canvas.erasable) {
+          // 擦除状态
+          Canvas.context.clearRect(x-5, y-5, 10, 10)
+        }else {
+          Canvas.point.x = x
+          Canvas.point.y = y
+        }
+      },
+      mouseMove: function(e) {
+        var x = e.clientX
+        var y = e.clientY
+        if(Canvas.erasable) {
+          if(Canvas.using) {
+            Canvas.context.clearRect(x-5, y-5, 10, 10)
+          }
+        }else {
+          if(Canvas.using) {
+            Canvas.drawCircle(x, y)
+            Canvas.drawLine(Canvas.point.x, Canvas.point.y, x, y)
+            Canvas.point.x = x
+            Canvas.point.y = y
+          }
+        }
+      },
+      mouseUp: function(e) {
+        Canvas.using = false
+      },
+      resizeCanvas() {
+        var pageWidth = document.documentElement.clientWidth
+        var pageHeight = document.documentElement.clientHeight
+        Canvas.$canvas.width = pageWidth
+        Canvas.$canvas.height = pageHeight
+      },
+      toggleStatus() {
+        if(this.classList.contains('active')) {
+          this.classList.remove('active')
+          Canvas.erasable = false
+        }else {
+          this.classList.add('active')
+          Canvas.erasable = true
+        }
+      },
+      changeColor(e) {
+        var element = e.target;
+        if(element.classList.contains('green')){
+          Canvas.PAINTING_COLOR = 'green'
+        }else if(element.classList.contains('red')) {
+          Canvas.PAINTING_COLOR = 'red'
+        }else if(element.classList.contains('blue')) {
+          Canvas.PAINTING_COLOR = 'blue'
+        }
+      }
+    }
+    Canvas.init()
+  </script>
+</body>
+</html>
