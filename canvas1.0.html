@@ -112,7 +112,7 @@
       drawLine(x1, y1, x2, y2) {
         var _this = Canvas
         Canvas.context.beginPath()
-        Canvas.strokeStyle = Canvas.PAINTING_COLOR
+        Canvas.context.strokeStyle = Canvas.PAINTING_COLOR
         Canvas.context.lineWidth = Canvas.PAINTING_WIDTH
         Canvas.context.moveTo(x1, y1)
         Canvas.context.lineTo(x2, y2)
@@ -125,11 +125,13 @@
         var y = e.clientY
 
         if(Canvas.erasable) {
-          // 擦除状态
+          // 使用橡皮
           Canvas.context.clearRect(x-5, y-5, 10, 10)
         }else {
+          // 正常画画
           Canvas.point.x = x
           Canvas.point.y = y
+          Canvas.drawCircle(Canvas.point.x, Canvas.point.y)
         }
       },
       mouseMove: function(e) {
