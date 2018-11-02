@@ -60,17 +60,26 @@
     .blue {
       background-color: blue;
     }
+    .icon {
+      width: 1em; height: 1em;
+      vertical-align: -0.15em;
+      fill: currentColor;
+      overflow: hidden;
+    }
   </style>
 </head>
 <body>
   <canvas id="canvas" width="300" height="300"></canvas>
   <div class="tool-box">
     <button id="eraser" class="button">橡皮擦</button>
-    <span class="color-box green"></span>
-    <span class="color-box red"></span>
-    <span class="color-box blue"></span>
+    <svg class="icon" aria-hidden="true">
+      <use xlink:href="#icon-pen"></use>
+    </svg>
+    <svg class="icon" aria-hidden="true">
+      <use xlink:href="#icon-eraser"></use>
+    </svg>
   </div>
-
+  <script src="http://at.alicdn.com/t/font_708918_k69mfqe64ap.js"></script>
   <script>
     var Canvas = {
       init: function(){
