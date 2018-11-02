@@ -17,48 +17,20 @@
     .tool-box {
       display: flex;
       position: fixed;
-      left: calc(50% - 50px);
+      left: 0;
       top: 0;
       background-color: #fff;
       padding: 20px;
       border-radius: 0 0 10px 10px;
     }
-    .button {
+    .tool {
       padding: 10px 15px;
       border: 1px solid #DCDFE6;
       border-radius: 10px;
       background: #fff;
       color: #303133;
       outline: none;
-    }
-    #eraser:hover {
-      color: #409EFF;
-      border-color: #b3d8ff;
-    }
-    .button.active {
-      background-color: #409EFF;
-      color: #fff;
-    }
-    #eraser.button.active:hover {
-      color: #fff;
-      background:#b3d8ff;
-    }
-    .color-box {
-      display: inline-block;
-      width: 39px;
-      height: 39px;
-      border: 1px solid 	#c0c0c0;
-      border-radius: 4px;
-      margin: 0 10px 0;
-    }
-    .green {
-      background-color: green;
-    }
-    .red {
-      background-color: red;
-    }
-    .blue {
-      background-color: blue;
+      margin:10px;
     }
     .icon {
       width: 1em; height: 1em;
@@ -66,18 +38,55 @@
       fill: currentColor;
       overflow: hidden;
     }
+    .tool-box svg {
+      width: 2em;
+      height: 2em;
+    }
+    .tool-box svg.active {
+      fill: red;
+      transform: scale(1.2);
+      transition : all .3s;
+    }
+    .color {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      margin: 10px;
+      border-radius: 50%;
+      outline: none;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+    }
+    .color.active {
+      box-shadow: 0 0 3px rgba(0, 0, 0, .95);
+      transform: scale(1.2);
+    }
+    .color.red {
+      background-color: red;
+    }
+    .color.blue {
+      background-color: blue;
+    }
+    .color.green {
+      background-color: green;
+    }
+
   </style>
 </head>
 <body>
   <canvas id="canvas" width="300" height="300"></canvas>
   <div class="tool-box">
-    <button id="eraser" class="button">橡皮擦</button>
-    <svg class="icon" aria-hidden="true">
+    <!-- <button id="eraser" class="button">橡皮擦</button> -->
+    <svg class="icon tool active" id="pen">
       <use xlink:href="#icon-pen"></use>
     </svg>
-    <svg class="icon" aria-hidden="true">
+    <svg class="icon tool" id="eraser">
       <use xlink:href="#icon-eraser"></use>
     </svg>
+    <span class="color red active"></span>
+    <span class="color green"></span>
+    <span class="color blue"></span>
+
+
   </div>
   <script src="http://at.alicdn.com/t/font_708918_k69mfqe64ap.js"></script>
   <script>
@@ -94,7 +103,9 @@
         this.$eraser = ''
         this.erasable = false
         this.using = false
-        this.toolBox = ''
+        this.$toolBox = ''
+        this.$pen = ''
+        this.$eraser = ''
         this.bind()
         this.resizeCanvas()
         this.userEraser = false
@@ -104,13 +115,24 @@
         _this.$canvas = document.querySelector('#canvas')
         _this.$eraser = document.querySelector('#eraser')
         _this.context = _this.$canvas.getContext('2d')
-        _this.toolBox = document.querySelector('.tool-box')
-        _this.toolBox.addEventListener('click', _this.changeColor)
+        _this.$toolBox = document.querySelector('.tool-box')
+        _this.$pen = document.querySelector('#pen')
+        _this.$eraser = document.querySelector('#eraser')
         _this.$canvas.addEventListener('mousedown', this.mouseDown)
         _this.$canvas.addEventListener('mousemove', this.mouseMove)
         _this.$canvas.addEventListener('mouseup', this.mouseUp)
         window.addEventListener('resize',_this.resizeCanvas)
-        _this.$eraser.addEventListener('click', this.toggleStatus)
+        _this.$eraser.addEventListener('click', _this.toggleStatus)
+        _this.$toolBox.addEventListener('click', _this.changeColor)
+        _this.$pen.addEventListener('click', function() {
+          Canvas.erasable = false
+          this.classList.add('active')
+          Canvas.$eraser.classList.remove('active')
+        })
+        _this.$eraser.addEventListener('click', function() {
+          Canvas.erasable = true
+          Canvas.$pen.classList.remove('active')
+        })
       },
       drawCircle(x, y) {
         this.context.beginPath()
@@ -178,14 +200,24 @@
         }
       },
       changeColor(e) {
-        var element = e.target;
-        if(element.classList.contains('green')){
-          Canvas.PAINTING_COLOR = 'green'
-        }else if(element.classList.contains('red')) {
+        var element = e.target
+        if(element.classList.contains('red')){
           Canvas.PAINTING_COLOR = 'red'
+          Canvas.toggleColor(element)
+        }else if(element.classList.contains('green')){
+          Canvas.PAINTING_COLOR = 'green'
+          Canvas.toggleColor(element)
         }else if(element.classList.contains('blue')) {
           Canvas.PAINTING_COLOR = 'blue'
+          Canvas.toggleColor(element)
         }
+      },
+      toggleColor(element) {
+        var colors = document.querySelectorAll('.color')
+        colors.forEach(item => {
+          item.classList.remove('active')
+        })
+        element.classList.add('active')
       }
     }
     Canvas.init()
