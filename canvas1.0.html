@@ -47,7 +47,7 @@
       transform: scale(1.2);
       transition : all .3s;
     }
-    .color {
+    .color,.pen {
       display: inline-block;
       width: 50px;
       height: 50px;
@@ -60,6 +60,9 @@
       box-shadow: 0 0 3px rgba(0, 0, 0, .95);
       transform: scale(1.2);
     }
+    .color.black {
+      background-color: black;
+    }
     .color.red {
       background-color: red;
     }
@@ -69,7 +72,25 @@
     .color.green {
       background-color: green;
     }
-
+    .pen::before {
+      content: '';
+      width: 3px;
+      position: relative;
+      left: 23px;
+      top: 13px;
+    }
+    .pen.active {
+      box-shadow: 0 0 3px rgba(0, 0, 0, .95);
+      transform: scale(1.2);
+    }
+    .thin::before {
+      border-left: 1px solid black;
+      border-right: 1px solid black;
+    }
+    .thick::before {
+      border-left: 3px solid black;
+      border-right: 3px solid black;
+    }
   </style>
 </head>
 <body>
@@ -82,13 +103,21 @@
     <svg class="icon tool" id="eraser">
       <use xlink:href="#icon-eraser"></use>
     </svg>
-    <span class="color red active"></span>
+    <svg class="icon tool" id="clear">
+      <use xlink:href="#icon-delete"></use>
+    </svg>
+    <svg class="icon tool" id="download">
+      <use xlink:href="#icon-download"></use>
+    </svg>
+    <span class="color black active"></span>
+    <span class="color red"></span>
     <span class="color green"></span>
     <span class="color blue"></span>
-
+    <span class="pen thin active"></span>
+    <span class="pen thick"></span>
 
   </div>
-  <script src="https://at.alicdn.com/t/font_708918_k69mfqe64ap.js"></script>
+  <script src="https://at.alicdn.com/t/font_708918_6cg538bl2o9.js"></script>
   <script>
     var Canvas = {
       init: function(){
@@ -118,12 +147,18 @@
         _this.$toolBox = document.querySelector('.tool-box')
         _this.$pen = document.querySelector('#pen')
         _this.$eraser = document.querySelector('#eraser')
+        _this.$clear = document.querySelector('#clear')
+        _this.$download = document.querySelector("#download")
+
         _this.$canvas.addEventListener('mousedown', this.mouseDown)
         _this.$canvas.addEventListener('mousemove', this.mouseMove)
         _this.$canvas.addEventListener('mouseup', this.mouseUp)
         window.addEventListener('resize',_this.resizeCanvas)
         _this.$eraser.addEventListener('click', _this.toggleStatus)
         _this.$toolBox.addEventListener('click', _this.changeColor)
+        _this.$clear.addEventListener('click', function() {
+          Canvas.context.clearRect(0, 0, Canvas.$canvas.width, Canvas.$canvas.height)
+        })
         _this.$pen.addEventListener('click', function() {
           Canvas.erasable = false
           this.classList.add('active')
@@ -132,6 +167,15 @@
         _this.$eraser.addEventListener('click', function() {
           Canvas.erasable = true
           Canvas.$pen.classList.remove('active')
+        })
+        _this.$download.addEventListener('click', function() {
+          const url = Canvas.$canvas.toDataURL('/image/png')
+          const a = document.createElement('a')
+          a.href = url
+          document.body.appendChild(a)
+          a.download = '我的画儿'
+          a.target = '_blank'
+          a.click()
         })
       },
       drawCircle(x, y) {
@@ -210,12 +254,28 @@
         }else if(element.classList.contains('blue')) {
           Canvas.PAINTING_COLOR = 'blue'
           Canvas.toggleColor(element)
+        }else if(element.classList.contains('black')) {
+          Canvas.PAINTING_COLOR = 'black'
+          Canvas.toggleColor(element)
+        }else if(element.classList.contains('thin')) {
+          Canvas.PAINTING_WIDTH = 5
+          Canvas.toggleLineWidth(element)
+        }else if(element.classList.contains('thick')) {
+          Canvas.PAINTING_WIDTH = 10
+          Canvas.toggleLineWidth(element)
         }
       },
       toggleColor(element) {
         var colors = document.querySelectorAll('.color')
         colors.forEach(item => {
           item.classList.remove('active')
+        })
+        element.classList.add('active')
+      },
+      toggleLineWidth(element) {
+        var pens = document.querySelectorAll('.pen')
+        pens.forEach(pen => {
+          pen.classList.remove('active')
         })
         element.classList.add('active')
       }
